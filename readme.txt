@@ -1,6 +1,7 @@
 === NextGEN Gallery Sidebar Widget ===
+Contributors:
 Donate link: http://ailoo.net
-Tags: image, picture, photo, widgets, pictures, photo-albums, Post, admin, media, gallery, images, slideshow, flash, photos
+Tags: image, picture, photo, widgets, gallery, images, nextgen-gallery
 Requires at least: 2.5
 Tested up to: 2.7.1
 Stable tag: 0.1
