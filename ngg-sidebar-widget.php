@@ -8,15 +8,15 @@ Version: 0.1
 Author URI: http://ailoo.net/
 */
 
-// check if NextGEN Gallery is active
-if (class_exists('nggLoader')) {
-    add_action('plugins_loaded', 'init_ngg_sidebar_gallery_widget');
-}
+add_action('plugins_loaded', 'init_ngg_sidebar_gallery_widget');
 
 function init_ngg_sidebar_gallery_widget()
 {
-	register_sidebar_widget('NextGEN Gallery Sidebar Widget', 'ngg_sidebar_gallery_widget');
-    register_widget_control('NextGEN Gallery Sidebar Widget', 'ngg_sidebar_gallery_widget_control');    
+    // check if NextGEN Gallery is installed
+    if (class_exists('nggLoader')) {
+        register_sidebar_widget('NextGEN Gallery Sidebar Widget', 'ngg_sidebar_gallery_widget');
+        register_widget_control('NextGEN Gallery Sidebar Widget', 'ngg_sidebar_gallery_widget_control');
+    }
 }
 
 function ngg_sidebar_gallery_widget($args)
