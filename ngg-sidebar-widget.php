@@ -4,9 +4,16 @@ Plugin Name: NextGEN Gallery Sidebar Widget
 Plugin URI: http://ailoo.net
 Description: A widget to show random galleries with preview image.
 Author: Mathias Geat
-Version: 0.2.1
+Version: 0.2.2
 Author URI: http://ailoo.net/
 */
+
+/**
+ * Changelog
+ * ---------
+ *
+ * 0.2.2            Add gallery_thumbnail option to select thumbnail image (preview, first, random)
+ */
 
 add_action('plugins_loaded', 'init_ngg_sidebar_gallery_widget');
 
@@ -42,8 +49,13 @@ function ngg_sidebar_gallery_widget($args)
         $galleries = array();
         foreach($results as $result) {
             if($wpdb->get_var("SELECT COUNT(pid) FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "'") > 0) {
-                if((int)$result->previewpic <= 0) {
+                if($options['gallery_thumbnail'] == 'preview' && (int)$result->previewpic > 0) {
+                    // ok
+                } elseif($options['gallery_thumbnail'] == 'random') {
                     $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY RAND() LIMIT 1");
+                } else {
+                    // else take the first image
+                    $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY sortorder ASC, pid ASC LIMIT 1");
                 }
                 
                 $galleries[] = $result;
@@ -96,72 +108,101 @@ function ngg_sidebar_gallery_widget($args)
 
 function ngg_sidebar_gallery_widget_control()
 {
-	$options = ngg_sidebar_gallery_widget_get_options();
-    
-	if($_POST['ngg_sidebar_gallery_widget-submit']){
-		$options['title'] = htmlspecialchars($_POST['ngg_sidebar_gallery_widget-title']);
-		$options['max_galleries'] = $_POST['ngg_sidebar_gallery_widget-max_galleries'];
-		$options['gallery_order'] = $_POST['ngg_sidebar_gallery_widget-gallery_order'];
-		$options['autothumb_params'] = $_POST['ngg_sidebar_gallery_widget-autothumb_params'];
-		$options['output_width'] = $_POST['ngg_sidebar_gallery_widget-output_width'];
-		$options['output_height'] = $_POST['ngg_sidebar_gallery_widget-output_height'];
-		$options['default_link'] = $_POST['ngg_sidebar_gallery_widget-default_link'];
-		update_option('ngg_sidebar_gallery_widget', $options);
-	}
+    $options = ngg_sidebar_gallery_widget_get_options();
+      
+    if($_POST['ngg_sidebar_gallery_widget-submit']){
+      $options['title'] = htmlspecialchars($_POST['ngg_sidebar_gallery_widget-title']);
+      $options['max_galleries'] = $_POST['ngg_sidebar_gallery_widget-max_galleries'];
+      $options['gallery_order'] = $_POST['ngg_sidebar_gallery_widget-gallery_order'];
+      $options['gallery_thumbnail'] = $_POST['ngg_sidebar_gallery_widget-gallery_thumbnail'];
+      $options['autothumb_params'] = $_POST['ngg_sidebar_gallery_widget-autothumb_params'];
+      $options['output_width'] = $_POST['ngg_sidebar_gallery_widget-output_width'];
+      $options['output_height'] = $_POST['ngg_sidebar_gallery_widget-output_height'];
+      $options['default_link'] = $_POST['ngg_sidebar_gallery_widget-default_link'];
+      update_option('ngg_sidebar_gallery_widget', $options);
+    }
     
     switch($options['gallery_order']) {
         case 'random':
-            break;
         case 'added_asc':
-            break;
         case 'added_desc':
             break;
         default:
             $options['gallery_order'] = 'random';
             break;
-    }    
+    }
+    
+    switch($options['gallery_thumbnail']) {
+        case 'preview':
+        case 'first':
+        case 'random':
+            break;
+        default:
+            $options['gallery_thumbnail'] = 'preview';
+            break;
+    }  
 
-	echo '<p>
-			<label for="ngg_sidebar_gallery_widget-title">Widget Title</label>
-			<input type="text" id="ngg_sidebar_gallery_widget-title" name="ngg_sidebar_gallery_widget-title" value="' . $options['title'] . '" />
-		  </p>
-          <p>
-            <label for="ngg_sidebar_gallery_widget-max_galleries">Maximum Galleries</label>
-            <input type="text" id="ngg_sidebar_gallery_widget-max_galleries" name="ngg_sidebar_gallery_widget-max_galleries" value="' . $options['max_galleries'] . '" />
-		  </p>
-          <p>
-            <label for="ngg_sidebar_gallery_widget-gallery_order">Gallery Order</label><br />
-            <select id="ngg_sidebar_gallery_widget-gallery_order" name="ngg_sidebar_gallery_widget-gallery_order">';
-                echo '<option value="random"';
-                echo ($options['gallery_order'] == 'random') ? ' selected="selected">' : '>';
-                echo 'Random</option>';
-                
-                echo '<option value="added_asc"';
-                echo ($options['gallery_order'] == 'added_asc') ? ' selected="selected">' : '>';
-                echo 'Date added ASC</option>';
-                
-                echo '<option value="added_desc"';
-                echo ($options['gallery_order'] == 'added_desc') ? ' selected="selected">' : '>';
-                echo 'Date added DESC</option>';
-            echo '</select>
-		  </p>          
-          <p>
-            <label for="ngg_sidebar_gallery_widget-autothumb_params">Autothumb Parameters (if installed)</label>
-            <input type="text" id="ngg_sidebar_gallery_widget-autothumb_params" name="ngg_sidebar_gallery_widget-autothumb_params" value="' . $options['autothumb_params'] . '" />
-		  </p>    
-          <p>
-            <label for="ngg_sidebar_gallery_widget-output_width">Output width</label>
-            <input type="text" id="ngg_sidebar_gallery_widget-output_width" name="ngg_sidebar_gallery_widget-output_width" value="' . $options['output_width'] . '" />
-		  </p>    
-          <p>
-            <label for="ngg_sidebar_gallery_widget-output_height">Output height</label>
-            <input type="text" id="ngg_sidebar_gallery_widget-output_height" name="ngg_sidebar_gallery_widget-output_height" value="' . $options['output_height'] . '" />
-		  </p>
-          <p>
-            <label for="ngg_sidebar_gallery_widget-default_link">Default Link Id (galleries without image page)</label>
-            <input type="text" id="ngg_sidebar_gallery_widget-default_link" name="ngg_sidebar_gallery_widget-default_link" value="' . $options['default_link'] . '" />
-            <input type="hidden" id="ngg_sidebar_gallery_widget-submit" name="ngg_sidebar_gallery_widget-submit" value="1" />
-		  </p>';
+    echo '<p>
+        <label for="ngg_sidebar_gallery_widget-title">Widget Title</label>
+        <input type="text" id="ngg_sidebar_gallery_widget-title" name="ngg_sidebar_gallery_widget-title" value="' . $options['title'] . '" />
+        </p>
+        <p>
+              <label for="ngg_sidebar_gallery_widget-max_galleries">Maximum Galleries</label>
+              <input type="text" id="ngg_sidebar_gallery_widget-max_galleries" name="ngg_sidebar_gallery_widget-max_galleries" value="' . $options['max_galleries'] . '" />
+        </p>
+        <p>
+              <label for="ngg_sidebar_gallery_widget-gallery_order">Gallery Order</label><br />
+              <select id="ngg_sidebar_gallery_widget-gallery_order" name="ngg_sidebar_gallery_widget-gallery_order">';
+              
+                  echo '<option value="random"';
+                  echo ($options['gallery_order'] == 'random') ? ' selected="selected">' : '>';
+                  echo 'Random</option>';
+                  
+                  echo '<option value="added_asc"';
+                  echo ($options['gallery_order'] == 'added_asc') ? ' selected="selected">' : '>';
+                  echo 'Date added ASC</option>';
+                  
+                  echo '<option value="added_desc"';
+                  echo ($options['gallery_order'] == 'added_desc') ? ' selected="selected">' : '>';
+                  echo 'Date added DESC</option>';
+                  
+              echo '</select>
+        </p>
+        <p>
+              <label for="ngg_sidebar_gallery_widget-gallery_thumbnail">Gallery thumbnail image</label><br />
+              <select id="ngg_sidebar_gallery_widget-gallery_thumbnail" name="ngg_sidebar_gallery_widget-gallery_thumbnail">';
+              
+                  echo '<option value="preview"';
+                  echo ($options['gallery_thumbnail'] == 'preview') ? ' selected="selected">' : '>';
+                  echo 'Gallery Preview (set in NGG)</option>';
+                  
+                  echo '<option value="first"';
+                  echo ($options['gallery_thumbnail'] == 'first') ? ' selected="selected">' : '>';
+                  echo 'First</option>';
+
+                  echo '<option value="random"';
+                  echo ($options['gallery_thumbnail'] == 'random') ? ' selected="selected">' : '>';
+                  echo 'Random</option>';
+                  
+              echo '</select>
+        </p>
+        <p>
+              <label for="ngg_sidebar_gallery_widget-autothumb_params">Autothumb Parameters (if installed)</label>
+              <input type="text" id="ngg_sidebar_gallery_widget-autothumb_params" name="ngg_sidebar_gallery_widget-autothumb_params" value="' . $options['autothumb_params'] . '" />
+        </p>    
+        <p>
+              <label for="ngg_sidebar_gallery_widget-output_width">Output width</label>
+              <input type="text" id="ngg_sidebar_gallery_widget-output_width" name="ngg_sidebar_gallery_widget-output_width" value="' . $options['output_width'] . '" />
+        </p>    
+        <p>
+              <label for="ngg_sidebar_gallery_widget-output_height">Output height</label>
+              <input type="text" id="ngg_sidebar_gallery_widget-output_height" name="ngg_sidebar_gallery_widget-output_height" value="' . $options['output_height'] . '" />
+        </p>
+        <p>
+              <label for="ngg_sidebar_gallery_widget-default_link">Default Link Id (galleries without image page)</label>
+              <input type="text" id="ngg_sidebar_gallery_widget-default_link" name="ngg_sidebar_gallery_widget-default_link" value="' . $options['default_link'] . '" />
+              <input type="hidden" id="ngg_sidebar_gallery_widget-submit" name="ngg_sidebar_gallery_widget-submit" value="1" />
+        </p>';
 }
 
 function ngg_sidebar_gallery_widget_get_options()
@@ -173,6 +214,7 @@ function ngg_sidebar_gallery_widget_get_options()
             'title' => 'Galleries',
             'max_galleries' => 6,
             'gallery_order' => 'random',
+            'gallery_thumbnail' => 'first',
             'autothumb_params' => '',
             'output_width' => 100,
             'output_height' => 75,
