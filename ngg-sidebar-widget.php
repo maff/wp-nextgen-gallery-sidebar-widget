@@ -4,7 +4,7 @@ Plugin Name: NextGEN Gallery Sidebar Widget
 Plugin URI: http://ailoo.net
 Description: A widget to show random galleries with preview image.
 Author: Mathias Geat
-Version: 0.2.2
+Version: 0.2.3
 Author URI: http://ailoo.net/
 */
 
@@ -99,7 +99,7 @@ function ngg_sidebar_gallery_widget($args)
                 $output .= '</a>';
             }
             
-            $output .= '<br class="clear" />';
+            $output .= '<br style="clear: both" />';
             $output .= "\n" . $after_widget . "\n";
             echo $output;
         }

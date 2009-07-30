@@ -3,8 +3,8 @@ Contributors:
 Donate link: http://ailoo.net
 Tags: image, picture, photo, widgets, gallery, images, nextgen-gallery
 Requires at least: 2.5
-Tested up to: 2.8.1
-Stable tag: 0.2.2
+Tested up to: 2.8.2
+Stable tag: 0.2.3
 
 A widget to show NextGEN galleries in your sidebar.
 
