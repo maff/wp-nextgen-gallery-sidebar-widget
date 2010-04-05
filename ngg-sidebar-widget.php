@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: NextGEN Gallery Sidebar Widget
-Plugin URI: http://ailoo.net
+Plugin URI: http://maff.ailoo.net/2009/04/nextgen-gallery-sidebar-widget/
 Description: A widget to show random galleries with preview image.
 Author: Mathias Geat
 Version: 0.3
