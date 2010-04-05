@@ -111,7 +111,6 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                     $output .= '</a>';
                 }
                 
-                $output .= '<br style="clear: both" />';
                 $output .= "\n" . $args['after_widget'] . "\n";
                 echo $output;
             }
