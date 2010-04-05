@@ -4,7 +4,7 @@ Plugin Name: NextGEN Gallery Sidebar Widget
 Plugin URI: http://ailoo.net
 Description: A widget to show random galleries with preview image.
 Author: Mathias Geat
-Version: 0.2.3
+Version: 0.3
 Author URI: http://ailoo.net/
 */
 
@@ -12,6 +12,8 @@ Author URI: http://ailoo.net/
  * Changelog
  * ---------
  *
+ * 0.3              Wordpress 2.8+ Widget API
+ *                  Gallery exclusion option
  * 0.2.2            Add gallery_thumbnail option to select thumbnail image (preview, first, random)
  */
  
@@ -42,22 +44,33 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                 $order = 'RAND()';
                 break;
         }
+        
+        $excluded_galleries = array();
+        $exc = explode(',', $instance['excluded_galleries']);
+        foreach($exc as $ex) {
+            $ex = trim($ex);
+            if(is_numeric($ex)) {
+                $excluded_galleries[] = $ex;
+            }
+        }        
                 
         $results = $wpdb->get_results("SELECT * FROM $wpdb->nggallery ORDER BY " . $order . " LIMIT " . $instance['max_galleries']);
         if(is_array($results) && count($results) > 0) {
             $galleries = array();
             foreach($results as $result) {
-                if($wpdb->get_var("SELECT COUNT(pid) FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "'") > 0) {
-                    if($instance['gallery_thumbnail'] == 'preview' && (int)$result->previewpic > 0) {
-                        // ok
-                    } elseif($instance['gallery_thumbnail'] == 'random') {
-                        $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY RAND() LIMIT 1");
-                    } else {
-                        // else take the first image
-                        $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY sortorder ASC, pid ASC LIMIT 1");
+                if(!in_array($result->gid, $excluded_galleries)) {
+                    if($wpdb->get_var("SELECT COUNT(pid) FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "'") > 0) {
+                        if($instance['gallery_thumbnail'] == 'preview' && (int)$result->previewpic > 0) {
+                            // ok
+                        } elseif($instance['gallery_thumbnail'] == 'random') {
+                            $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY RAND() LIMIT 1");
+                        } else {
+                            // else take the first image
+                            $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY sortorder ASC, pid ASC LIMIT 1");
+                        }
+                        
+                        $galleries[] = $result;
                     }
-                    
-                    $galleries[] = $result;
                 }
             }
             
@@ -115,15 +128,16 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
             'autothumb_params' => '',
             'output_width' => 100,
             'output_height' => 75,
-            'default_link' => 1
+            'default_link' => 1,
+            'excluded_galleries' => ''
         ));
     ?>
         <p>
-            <label for="<?php echo $this->get_field_id('title'); ?>">Widget Title</label>
+            <label for="<?php echo $this->get_field_id('title'); ?>">Widget Title</label><br />
             <input type="text" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php echo $instance['title'] ?>" />
         </p>
         <p>
-            <label for="<?php echo $this->get_field_id('max_galleries'); ?>">Maximum Galleries</label>
+            <label for="<?php echo $this->get_field_id('max_galleries'); ?>">Maximum Galleries</label><br />
             <input type="text" id="<?php echo $this->get_field_id('max_galleries'); ?>" name="<?php echo $this->get_field_name('max_galleries'); ?>" value="<?php echo $instance['max_galleries'] ?>" />
         <p>
             <label for="<?php echo $this->get_field_id('gallery_order'); ?>">Gallery Order</label><br />
@@ -142,20 +156,24 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
             </select>
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('autothumb_params'); ?>">Autothumb Parameters (if installed)</label>
+              <label for="<?php echo $this->get_field_id('autothumb_params'); ?>">Autothumb Parameters (if installed)</label><br />
               <input type="text" id="<?php echo $this->get_field_id('autothumb_params'); ?>" name="<?php echo $this->get_field_name('autothumb_params'); ?>" value="<?php echo $instance['autothumb_params'] ?>" />
         </p>    
         <p>
-              <label for="<?php echo $this->get_field_id('output_width'); ?>">Output width</label>
+              <label for="<?php echo $this->get_field_id('output_width'); ?>">Output width</label><br />
               <input type="text" id="<?php echo $this->get_field_id('output_width'); ?>" name="<?php echo $this->get_field_name('output_width'); ?>" value="<?php echo $instance['output_width'] ?>" />
         </p>    
         <p>
-              <label for="<?php echo $this->get_field_id('output_height'); ?>">Output height</label>
+              <label for="<?php echo $this->get_field_id('output_height'); ?>">Output height</label><br />
               <input type="text" id="<?php echo $this->get_field_id('output_height'); ?>" name="<?php echo $this->get_field_name('output_height'); ?>" value="<?php echo $instance['output_height'] ?>" />
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('default_link'); ?>">Default Link Id (galleries without image page)</label>
+              <label for="<?php echo $this->get_field_id('default_link'); ?>">Default Link Id (galleries without image page)</label><br />
               <input type="text" id="<?php echo $this->get_field_id('default_link'); ?>" name="<?php echo $this->get_field_name('default_link'); ?>" value="<?php echo $instance['default_link'] ?>" />
+        </p>
+        <p>
+              <label for="<?php echo $this->get_field_id('excluded_galleries'); ?>">Excluded gallery IDs (comma separated)</label><br />
+              <input type="text" id="<?php echo $this->get_field_id('excluded_galleries'); ?>" name="<?php echo $this->get_field_name('excluded_galleries'); ?>" value="<?php echo $instance['excluded_galleries'] ?>" />
         </p>
     <?php
 	}
