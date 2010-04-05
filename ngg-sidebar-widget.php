@@ -14,6 +14,7 @@ Author URI: http://ailoo.net/
  *
  * 0.3              Wordpress 2.8+ Widget API
  *                  Gallery exclusion option
+ *                  Templating feature
  * 0.2.2            Add gallery_thumbnail option to select thumbnail image (preview, first, random)
  */
  
@@ -21,6 +22,8 @@ add_action('widgets_init', create_function('', 'return register_widget("NextGEN_
  
 class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
 {
+    protected $_templates = array();
+
     function NextGEN_Gallery_Sidebar_Widget()
     {
 		$widget_ops = array('classname' => 'ngg-sidebar-widget', 'description' => 'A widget to show random galleries with preview image.');
@@ -75,14 +78,26 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
             }
             
             if(count($galleries) > 0) {
-                $title = $instance['title'];
-                if(isset($instance['default_link']) && trim($instance['default_link']) != '') {
-                    $title = '<a href="' . get_permalink($instance['default_link']) . '">' . $instance['title'] . '</a>';
+                $outerTplFile = get_template_directory() . '/ngg-sidebar-widget/tpl.outer.html';
+                $innerTplFile = get_template_directory() . '/ngg-sidebar-widget/tpl.inner.html';
+                
+                $outerTplFile = (file_exists($outerTplFile)) ? $outerTplFile : dirname(__FILE__) . '/tpl/tpl.outer.html';
+                $innerTplFile = (file_exists($innerTplFile)) ? $innerTplFile : dirname(__FILE__) . '/tpl/tpl.inner.html';
+                
+                $outerTpl = file_get_contents($outerTplFile);
+                $innerTpl = file_get_contents($innerTplFile);            
+                        
+                if(empty($outerTpl)) {
+                    $outerTpl = '{=inner}';
                 }
-            
+                
+                $this->parseTemplate('innerTpl', $innerTpl);
+                        
                 $output = "\n";
                 $output .= $args['before_widget'] . "\n";
                 $output .= $args['before_title'] . $title . $args['after_title'] . "\n";
+                
+                $innerOutput = '';
                 
                 foreach($galleries as $gallery) {
                     $imagerow = $wpdb->get_row("SELECT * FROM $wpdb->nggpictures WHERE pid = '" . $gallery->previewpic . "'");
@@ -91,6 +106,11 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                     }
                     
                     $image = new nggImage($imagerow);
+
+                    $tpl = array(
+                        'gallery' => (array) $gallery,
+                        'image' => (array) $image
+                    );                    
                     
                     if($gallery->pageid > 0) {
                         $gallery_link = get_permalink($gallery->pageid);
@@ -100,22 +120,59 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                         $gallery_link = get_permalink(1);
                     }
                     
-                    $output .= '<a href="' . $gallery_link . '">';
+                    $tpl['gallery']['link'] = $gallery_link;
                     
                     if(function_exists('getphpthumburl') && trim($instance['autothumb_params']) != '') {
-                        $output .= '<img src="' . getphpthumburl($image->imageURL, $instance['autothumb_params']) . '" title="' . $gallery->title . '" alt="' . $gallery->title . '" />';
+                        $tpl['image']['url'] = getphpthumburl($image->imageURL, $instance['autothumb_params']);
                     } else {
-                        $output .= '<img src="' . $image->thumbURL . '" title="' . $gallery->title . '" alt="' . $gallery->title . '" width="' . $instance['output_width'] . '" height="' . $instance['output_height'] . '" />';               
+                        $tpl['image']['url'] = $image->thumbURL;
                     }
                     
-                    $output .= '</a>';
+                    $tpl['image']['output_width'] = $instance['output_width'];
+                    $tpl['image']['output_height'] = $instance['output_height'];
+                    
+                    $innerOutput .= $this->renderTemplate('innerTpl', $tpl);
                 }
                 
+                $output .= str_replace('{=inner}', $innerOutput, $outerTpl);                
                 $output .= "\n" . $args['after_widget'] . "\n";
                 echo $output;
             }
         }
 	}
+    
+    function renderTemplate($id, $values)
+    {
+        $output = '';
+        if(isset($this->_templates[$id])) {
+            $output = $this->_templates[$id]['template'];
+            foreach($this->_templates[$id]['tags'] as $identifier => $val) {
+                if(isset($values[$val[0]][$val[1]])) {
+                    $output = str_replace('{=' . $identifier . '}', $values[$val[0]][$val[1]], $output);
+                }
+            }
+        }
+        
+        return $output;
+    }
+    
+    function parseTemplate($id, $template)
+    {
+        $tags = array();
+        $pattern = '#\{\=([a-zA-Z0-9]*)\.([a-zA-Z]*)\}#';
+        preg_match_all($pattern, $template, $matches);
+        
+        if(is_array($matches) && count($matches) > 0) {
+            foreach($matches[0] as $key => $value) {
+                $identifier = $matches[1][$key] . '.' . $matches[2][$key];
+                $tags[$identifier][0] = $matches[1][$key];
+                $tags[$identifier][1] = $matches[2][$key];
+            }
+        }
+        
+        $this->_templates[$id]['template'] = $template;
+        $this->_templates[$id]['tags'] = $tags;
+    }
 
 	function form($instance)
     {
