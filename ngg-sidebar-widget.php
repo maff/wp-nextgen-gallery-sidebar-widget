@@ -4,7 +4,7 @@ Plugin Name: NextGEN Gallery Sidebar Widget
 Plugin URI: http://maff.ailoo.net/2009/04/nextgen-gallery-sidebar-widget/
 Description: A widget to show random galleries with preview image.
 Author: Mathias Geat
-Version: 0.3
+Version: 0.3.1
 Author URI: http://ailoo.net/
 */
 
@@ -12,6 +12,7 @@ Author URI: http://ailoo.net/
  * Changelog
  * ---------
  *
+ * 0.3.1            Gallery limit bugfix
  * 0.3              Wordpress 2.8+ Widget API
  *                  Gallery exclusion option
  *                  Templating feature
@@ -30,7 +31,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
 		$this->WP_Widget('ngg-sidebar-widget', 'NextGEN Gallery Sidebar Widget', $widget_ops);
     }
     
-	function widget($args, $instance)
+    function widget($args, $instance)
     {
         global $wpdb;
         extract($args);
@@ -57,7 +58,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
             }
         }        
                 
-        $results = $wpdb->get_results("SELECT * FROM $wpdb->nggallery ORDER BY " . $order . " LIMIT " . $instance['max_galleries']);
+        $results = $wpdb->get_results("SELECT * FROM $wpdb->nggallery ORDER BY " . $order . " LIMIT 0, " . $instance['max_galleries']);
         if(is_array($results) && count($results) > 0) {
             $galleries = array();
             foreach($results as $result) {
