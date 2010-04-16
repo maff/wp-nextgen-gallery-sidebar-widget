@@ -162,7 +162,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
     function parseTemplate($id, $template)
     {
         $tags = array();
-        $pattern = '#\{\=([a-zA-Z0-9]*)\.([a-zA-Z]*)\}#';
+        $pattern = '#\{\=([a-zA-Z0-9\-\_\.]*)\.([a-zA-Z0-9\-\_\.]*)\}#';
         preg_match_all($pattern, $template, $matches);
         
         if(is_array($matches) && count($matches) > 0) {
