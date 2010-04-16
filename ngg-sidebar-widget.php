@@ -134,6 +134,14 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                     $tpl['image']['output_width'] = $instance['output_width'];
                     $tpl['image']['output_height'] = $instance['output_height'];
                     
+                    if(trim($instance['autothumb_params']) != '') {
+                        $tpl['image']['output_width_tag'] = '';
+                        $tpl['image']['output_height_tag'] = '';
+                    } else {
+                        $tpl['image']['output_width_tag'] = ' width="' . $instance['output_width'] . '"';
+                        $tpl['image']['output_height_tag'] = ' height="' . $instance['output_height'] . '"';
+                    }
+                    
                     $innerOutput .= $this->renderTemplate('innerTpl', $tpl);
                 }
                 
