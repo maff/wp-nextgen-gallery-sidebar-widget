@@ -60,24 +60,22 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
             }
         }        
                 
-        $results = $wpdb->get_results("SELECT * FROM $wpdb->nggallery ORDER BY " . $order . " WHERE gid NOT IN (" . implode(',', $excluded_galleries) . ") LIMIT 0, " . $instance['max_galleries']);
+        $results = $wpdb->get_results("SELECT * FROM $wpdb->nggallery WHERE gid NOT IN (" . implode(',', $excluded_galleries) . ") ORDER BY " . $order . " LIMIT 0, " . $instance['max_galleries']);
         if(is_array($results) && count($results) > 0) {
             $galleries = array();
             foreach($results as $result) {
-                //if(!in_array($result->gid, $excluded_galleries)) {
-                    if($wpdb->get_var("SELECT COUNT(pid) FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "'") > 0) {
-                        if($instance['gallery_thumbnail'] == 'preview' && (int)$result->previewpic > 0) {
-                            // ok
-                        } elseif($instance['gallery_thumbnail'] == 'random') {
-                            $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY RAND() LIMIT 1");
-                        } else {
-                            // else take the first image
-                            $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY sortorder ASC, pid ASC LIMIT 1");
-                        }
-                        
-                        $galleries[] = $result;
+                if($wpdb->get_var("SELECT COUNT(pid) FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "'") > 0) {
+                    if($instance['gallery_thumbnail'] == 'preview' && (int)$result->previewpic > 0) {
+                        // ok
+                    } elseif($instance['gallery_thumbnail'] == 'random') {
+                        $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY RAND() LIMIT 1");
+                    } else {
+                        // else take the first image
+                        $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY sortorder ASC, pid ASC LIMIT 1");
                     }
-                //}
+                    
+                    $galleries[] = $result;
+                }
             }
             
             if(count($galleries) > 0) {
