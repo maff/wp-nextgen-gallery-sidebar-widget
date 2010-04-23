@@ -4,7 +4,7 @@ Plugin Name: NextGEN Gallery Sidebar Widget
 Plugin URI: http://maff.ailoo.net/2009/04/nextgen-gallery-sidebar-widget/
 Description: A widget to show random galleries with preview image.
 Author: Mathias Geat
-Version: 0.3.2
+Version: 0.3.3
 Author URI: http://ailoo.net/
 */
 
@@ -12,6 +12,7 @@ Author URI: http://ailoo.net/
  * Changelog
  * ---------
  *
+ * 0.3.3            Fix wrong maximum galleries (bug #58)
  * 0.3.2            Image output width fix in template
  *                  Cleanup
  * 0.3.1            Gallery limit bugfix

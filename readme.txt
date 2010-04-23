@@ -4,7 +4,7 @@ Donate link: http://maff.ailoo.net/about/
 Tags: image, picture, photo, widgets, gallery, images, nextgen-gallery
 Requires at least: 2.8
 Tested up to: 2.9.2
-Stable tag: 0.3.2
+Stable tag: 0.3.3
 
 A widget to show NextGEN galleries in your sidebar.
 
