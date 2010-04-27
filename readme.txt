@@ -4,7 +4,7 @@ Donate link: http://maff.ailoo.net/about/
 Tags: image, picture, photo, widgets, gallery, images, nextgen-gallery
 Requires at least: 2.8
 Tested up to: 2.9.2
-Stable tag: 0.3.3
+Stable tag: 0.3.3.1
 
 A widget to show NextGEN galleries in your sidebar.
 
@@ -32,5 +32,9 @@ Beginning with version 0.3, you have full control over the widget's output as it
 
 == Changelog ==
 
+- 0.3.3.1: Fix bug on widget no displaying galleries when no exclusions are set (bug #59, #60)
+- 0.3.3: Fix wrong maximum galleries (bug #58)
+- 0.3.2: Image output width fix in template, Cleanup
+- 0.3.1: Gallery limit bugfix
 - 0.3: Wordpress 2.8+ widget API, gallery exclusion option, templating feature
 - 0.2.2: Add gallery_thumbnail option to select thumbnail image (preview, first, random)
