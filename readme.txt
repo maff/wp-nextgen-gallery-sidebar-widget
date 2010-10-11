@@ -24,6 +24,56 @@ Templating:
 
 Beginning with version 0.3, you have full control over the widget's output as it is controlled with templates. As the built-in templates would get overwritten on every plugin update, create a new directory called "ngg-sidebar-widget" in your theme's directory and copy the two template files "tpl.outer.html" and "tpl.inner.html" over there to edit them. The outer template is just a wrapper template (useful when you need some additional markup, e.g. when creating a list), the inner template has access to all the values from the gallery and image object (written in a simple templating syntax: {=object.member}). For the most use cases you should only need "gallery.title", "gallery.link" and "image.url".
 
+You will have access to the following variables:
+
+* gallery
+    * gid
+    * name
+    * path
+    * title
+    * galdesc
+    * pageid
+    * previewpic
+    * author
+    * link
+* image
+    * errmsg
+    * error
+    * imageURL
+    * thumbURL
+    * imagePath
+    * thumbPath
+    * href
+    * thumbPrefix
+    * thumbFolder
+    * galleryid
+    * pid
+    * filename
+    * description
+    * alttext
+    * imagedate
+    * exclude
+    * thumbcode
+    * name
+    * path
+    * title
+    * pageid
+    * previewpic
+    * permalink
+    * post_id
+    * sortorder
+    * meta_data
+    * gid
+    * galdesc
+    * author
+    * imageHTML
+    * thumbHTML
+    * url
+    * output\_width
+    * output\_height
+    * output\_width\_tag
+    * output\_height\_tag
+
 == Installation ==
 
 1. Upload `ngg-sidebar-widget.php` to the `/wp-content/plugins/` directory
