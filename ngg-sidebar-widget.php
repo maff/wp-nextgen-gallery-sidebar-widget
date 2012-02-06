@@ -32,8 +32,8 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
 
     function NextGEN_Gallery_Sidebar_Widget()
     {
-		$widget_ops = array('classname' => 'ngg-sidebar-widget', 'description' => 'A widget to show random galleries with preview image.');
-		$this->WP_Widget('ngg-sidebar-widget', 'NextGEN Gallery Sidebar Widget', $widget_ops);
+        $widget_ops = array('classname' => 'ngg-sidebar-widget', 'description' => 'A widget to show random galleries with preview image.');
+        $this->WP_Widget('ngg-sidebar-widget', 'NextGEN Gallery Sidebar Widget', $widget_ops);
     }
 
     function widget($args, $instance)
@@ -42,7 +42,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
         extract($args);
         $title = apply_filters('widget_title', $instance['title']);
 
-        switch($instance['gallery_order']) {
+        switch ($instance['gallery_order']) {
             case 'added_desc':
                 $order = 'gid DESC';
                 break;
@@ -58,27 +58,27 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
         $excluded_galleries = $this->explode_ids($instance['excluded_galleries']);
 
         $where = ' ';
-        if(count($included_galleries) > 0) {
+        if (count($included_galleries) > 0) {
             $include = array();
-            foreach($included_galleries as $included_gallery) {
-                if(!in_array($included_gallery, $excluded_galleries)) {
+            foreach ($included_galleries as $included_gallery) {
+                if (!in_array($included_gallery, $excluded_galleries)) {
                     $include[] = $included_gallery;
                 }
             }
 
             $where = " WHERE gid IN (" . implode(',', $include) . ")";
-        } else if(count($excluded_galleries) > 0) {
+        } else if (count($excluded_galleries) > 0) {
             $where = " WHERE gid NOT IN (" . implode(',', $excluded_galleries) . ")";
         }
 
         $results = $wpdb->get_results("SELECT * FROM $wpdb->nggallery" . $where . " ORDER BY " . $order . " LIMIT 0, " . $instance['max_galleries']);
-        if(is_array($results) && count($results) > 0) {
+        if (is_array($results) && count($results) > 0) {
             $galleries = array();
-            foreach($results as $result) {
-                if($wpdb->get_var("SELECT COUNT(pid) FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "'") > 0) {
-                    if($instance['gallery_thumbnail'] == 'preview' && (int)$result->previewpic > 0) {
+            foreach ($results as $result) {
+                if ($wpdb->get_var("SELECT COUNT(pid) FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "'") > 0) {
+                    if ($instance['gallery_thumbnail'] == 'preview' && (int) $result->previewpic > 0) {
                         // ok
-                    } elseif($instance['gallery_thumbnail'] == 'random') {
+                    } elseif ($instance['gallery_thumbnail'] == 'random') {
                         $result->previewpic = $wpdb->get_var("SELECT pid FROM $wpdb->nggpictures WHERE galleryid = '" . $result->gid . "' ORDER BY RAND() LIMIT 1");
                     } else {
                         // else take the first image
@@ -89,7 +89,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                 }
             }
 
-            if(count($galleries) > 0) {
+            if (count($galleries) > 0) {
                 $outerTplFile = get_template_directory() . '/ngg-sidebar-widget/tpl.outer.html';
                 $innerTplFile = get_template_directory() . '/ngg-sidebar-widget/tpl.inner.html';
 
@@ -99,7 +99,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                 $outerTpl = file_get_contents($outerTplFile);
                 $innerTpl = file_get_contents($innerTplFile);
 
-                if(empty($outerTpl)) {
+                if (empty($outerTpl)) {
                     $outerTpl = '{=inner}';
                 }
 
@@ -111,9 +111,9 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
 
                 $innerOutput = '';
 
-                foreach($galleries as $gallery) {
+                foreach ($galleries as $gallery) {
                     $imagerow = $wpdb->get_row("SELECT * FROM $wpdb->nggpictures WHERE pid = '" . $gallery->previewpic . "'");
-                    foreach($gallery as $key => $value) {
+                    foreach ($gallery as $key => $value) {
                         $imagerow->$key = $value;
                     }
 
@@ -124,9 +124,9 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                         'image' => (array) $image
                     );
 
-                    if($gallery->pageid > 0) {
+                    if ($gallery->pageid > 0) {
                         $gallery_link = get_permalink($gallery->pageid);
-                    } elseif(!empty($instance['default_link'])) {
+                    } elseif (!empty($instance['default_link'])) {
                         $gallery_link = get_permalink($instance['default_link']);
                     } else {
                         $gallery_link = get_permalink(1);
@@ -134,7 +134,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
 
                     $tpl['gallery']['link'] = $gallery_link;
 
-                    if(function_exists('getphpthumburl') && trim($instance['autothumb_params']) != '') {
+                    if (function_exists('getphpthumburl') && trim($instance['autothumb_params']) != '') {
                         $tpl['image']['url'] = getphpthumburl($image->imageURL, $instance['autothumb_params']);
                     } else {
                         $tpl['image']['url'] = $image->thumbURL;
@@ -143,7 +143,7 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                     $tpl['image']['output_width'] = $instance['output_width'];
                     $tpl['image']['output_height'] = $instance['output_height'];
 
-                    if(trim($instance['autothumb_params']) != '') {
+                    if (trim($instance['autothumb_params']) != '') {
                         $tpl['image']['output_width_tag'] = '';
                         $tpl['image']['output_height_tag'] = '';
                     } else {
@@ -159,15 +159,15 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
                 echo $output;
             }
         }
-	}
+    }
 
     function explode_ids($string, $separator = ',')
     {
         $ret = array();
         $exploded = explode($separator, $string);
-        foreach($exploded as $ex) {
+        foreach ($exploded as $ex) {
             $ex = trim($ex);
-            if(is_numeric($ex)) {
+            if (is_numeric($ex)) {
                 $ret[] = $ex;
             }
         }
@@ -178,10 +178,10 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
     function renderTemplate($id, $values)
     {
         $output = '';
-        if(isset($this->_templates[$id])) {
+        if (isset($this->_templates[$id])) {
             $output = $this->_templates[$id]['template'];
-            foreach($this->_templates[$id]['tags'] as $identifier => $val) {
-                if(isset($values[$val[0]][$val[1]])) {
+            foreach ($this->_templates[$id]['tags'] as $identifier => $val) {
+                if (isset($values[$val[0]][$val[1]])) {
                     $output = str_replace('{=' . $identifier . '}', $values[$val[0]][$val[1]], $output);
                 }
             }
@@ -196,8 +196,8 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
         $pattern = '#\{\=([a-zA-Z0-9\-\_\.]*)\.([a-zA-Z0-9\-\_\.]*)\}#';
         preg_match_all($pattern, $template, $matches);
 
-        if(is_array($matches) && count($matches) > 0) {
-            foreach($matches[0] as $key => $value) {
+        if (is_array($matches) && count($matches) > 0) {
+            foreach ($matches[0] as $key => $value) {
                 $identifier = $matches[1][$key] . '.' . $matches[2][$key];
                 $tags[$identifier][0] = $matches[1][$key];
                 $tags[$identifier][1] = $matches[2][$key];
@@ -208,9 +208,9 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
         $this->_templates[$id]['tags'] = $tags;
     }
 
-	function form($instance)
+    function form($instance)
     {
-		$instance = wp_parse_args((array) $instance, array(
+        $instance = wp_parse_args((array) $instance, array(
             'title' => 'Galleries',
             'max_galleries' => 6,
             'gallery_order' => 'random',
@@ -221,8 +221,8 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
             'default_link' => 1,
             'included_galleries' => '',
             'excluded_galleries' => ''
-        ));
-    ?>
+                ));
+        ?>
         <p>
             <label for="<?php echo $this->get_field_id('title'); ?>">Widget Title</label><br />
             <input type="text" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php echo $instance['title'] ?>" />
@@ -241,41 +241,41 @@ class NextGEN_Gallery_Sidebar_Widget extends WP_Widget
         <p>
             <label for="<?php echo $this->get_field_id('gallery_thumbnail'); ?>">Gallery thumbnail image</label><br />
             <select id="<?php echo $this->get_field_name('gallery_thumbnail'); ?>" name="<?php echo $this->get_field_name('gallery_thumbnail'); ?>">';
-              <option value="preview" <?php echo ($instance['gallery_thumbnail'] == 'preview') ? ' selected="selected"' : ''; ?>>Gallery Preview (set in NGG)</option>
-              <option value="first" <?php echo ($instance['gallery_thumbnail'] == 'first') ? ' selected="selected"' : ''; ?>>First</option>
-              <option value="random" <?php echo ($instance['gallery_thumbnail'] == 'random') ? ' selected="selected"' : ''; ?>>Random</option>
+                <option value="preview" <?php echo ($instance['gallery_thumbnail'] == 'preview') ? ' selected="selected"' : ''; ?>>Gallery Preview (set in NGG)</option>
+                <option value="first" <?php echo ($instance['gallery_thumbnail'] == 'first') ? ' selected="selected"' : ''; ?>>First</option>
+                <option value="random" <?php echo ($instance['gallery_thumbnail'] == 'random') ? ' selected="selected"' : ''; ?>>Random</option>
             </select>
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('autothumb_params'); ?>">Autothumb Parameters (if installed)</label><br />
-              <input type="text" id="<?php echo $this->get_field_id('autothumb_params'); ?>" name="<?php echo $this->get_field_name('autothumb_params'); ?>" value="<?php echo $instance['autothumb_params'] ?>" />
+            <label for="<?php echo $this->get_field_id('autothumb_params'); ?>">Autothumb Parameters (if installed)</label><br />
+            <input type="text" id="<?php echo $this->get_field_id('autothumb_params'); ?>" name="<?php echo $this->get_field_name('autothumb_params'); ?>" value="<?php echo $instance['autothumb_params'] ?>" />
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('output_width'); ?>">Output width</label><br />
-              <input type="text" id="<?php echo $this->get_field_id('output_width'); ?>" name="<?php echo $this->get_field_name('output_width'); ?>" value="<?php echo $instance['output_width'] ?>" />
+            <label for="<?php echo $this->get_field_id('output_width'); ?>">Output width</label><br />
+            <input type="text" id="<?php echo $this->get_field_id('output_width'); ?>" name="<?php echo $this->get_field_name('output_width'); ?>" value="<?php echo $instance['output_width'] ?>" />
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('output_height'); ?>">Output height</label><br />
-              <input type="text" id="<?php echo $this->get_field_id('output_height'); ?>" name="<?php echo $this->get_field_name('output_height'); ?>" value="<?php echo $instance['output_height'] ?>" />
+            <label for="<?php echo $this->get_field_id('output_height'); ?>">Output height</label><br />
+            <input type="text" id="<?php echo $this->get_field_id('output_height'); ?>" name="<?php echo $this->get_field_name('output_height'); ?>" value="<?php echo $instance['output_height'] ?>" />
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('default_link'); ?>">Default Link Id (galleries without image page)</label><br />
-              <input type="text" id="<?php echo $this->get_field_id('default_link'); ?>" name="<?php echo $this->get_field_name('default_link'); ?>" value="<?php echo $instance['default_link'] ?>" />
+            <label for="<?php echo $this->get_field_id('default_link'); ?>">Default Link Id (galleries without image page)</label><br />
+            <input type="text" id="<?php echo $this->get_field_id('default_link'); ?>" name="<?php echo $this->get_field_name('default_link'); ?>" value="<?php echo $instance['default_link'] ?>" />
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('included_galleries'); ?>">Included gallery IDs (comma separated)</label><br />
-              <input type="text" id="<?php echo $this->get_field_id('included_galleries'); ?>" name="<?php echo $this->get_field_name('included_galleries'); ?>" value="<?php echo $instance['included_galleries'] ?>" />
+            <label for="<?php echo $this->get_field_id('included_galleries'); ?>">Included gallery IDs (comma separated)</label><br />
+            <input type="text" id="<?php echo $this->get_field_id('included_galleries'); ?>" name="<?php echo $this->get_field_name('included_galleries'); ?>" value="<?php echo $instance['included_galleries'] ?>" />
         </p>
         <p>
-              <label for="<?php echo $this->get_field_id('excluded_galleries'); ?>">Excluded gallery IDs (comma separated)</label><br />
-              <input type="text" id="<?php echo $this->get_field_id('excluded_galleries'); ?>" name="<?php echo $this->get_field_name('excluded_galleries'); ?>" value="<?php echo $instance['excluded_galleries'] ?>" />
+            <label for="<?php echo $this->get_field_id('excluded_galleries'); ?>">Excluded gallery IDs (comma separated)</label><br />
+            <input type="text" id="<?php echo $this->get_field_id('excluded_galleries'); ?>" name="<?php echo $this->get_field_name('excluded_galleries'); ?>" value="<?php echo $instance['excluded_galleries'] ?>" />
         </p>
-    <?php
-	}
+        <?php
+    }
 
-	function update($new_instance, $old_instance)
+    function update($new_instance, $old_instance)
     {
         $new_instance['title'] = htmlspecialchars($new_instance['title']);
         return $new_instance;
-	}
+    }
 }
