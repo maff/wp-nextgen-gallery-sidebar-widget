@@ -1,10 +1,10 @@
 === NextGEN Gallery Sidebar Widget ===
-Contributors:
-Donate link: http://maff.ailoo.net/about/
+
+Donate link: http://ailoo.net/about
 Tags: image, picture, photo, widgets, gallery, images, nextgen-gallery
 Requires at least: 2.8
-Tested up to: 3.0.1
-Stable tag: 0.4.2
+Tested up to: 3.3.1
+Stable tag: 0.4.3
 
 A widget to show NextGEN galleries in your sidebar.
 
@@ -19,6 +19,10 @@ The NextGEN widgets only allow showing of single images, I needed a solution to 
 - Output width/height: if you don't use AutoThumb, the plugin will set the HTML attributes width & height.
 - Default Link Id: the widget assumes that you set up pages for each gallery and link the gallery to that page (you can use the NGG Gallery Editor to do this). If a gallery has no link set, it will use the default link (id of a page or post).
 - Exclude galleries: exclude galleries by specifying their ID as comma separated list
+
+All development is done on [GitHub](https://github.com/maff/wp-nextgen-gallery-sidebar-widget). If you have ideas, enhancements, etc. feel free to fork the project and send a pull request.
+
+For any issues please use the [Issue Tracker](https://github.com/maff/wp-nextgen-gallery-sidebar-widget/issues).
 
 Templating:
 
